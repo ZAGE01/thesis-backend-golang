@@ -1,6 +1,6 @@
 # Game Backend API
 
-A REST API backend built with **Go (Gin)** and **PostgreSQL** for an Unreal Engine game. It handles player account registration, authentication, score submission, and leaderboard tracking.
+A REST API backend built with **Go (Gin)** and **PostgreSQL** for an Unreal Engine game. It handles player account registration, authentication, score submission, and leaderboard tracking. This project is part of a thesis project.
 
 ---
 
