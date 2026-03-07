@@ -17,12 +17,15 @@ func Connect() {
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
 	port := os.Getenv("DB_PORT")
+	sslmode := os.Getenv("DB_SSLMODE")
 
-	createGameDB(host, user, password, dbname, port)
+	if sslmode == "" {
+		sslmode = "disable"
+	}
 
 	connectGameDB := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		host, user, password, dbname, port,
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		host, user, password, dbname, port, sslmode,
 	)
 
 	var err error
@@ -50,35 +53,4 @@ func createTables() {
 	}
 
 	log.Println("Tables created successfully")
-}
-
-func createGameDB(host, user, password, dbname, port string) {
-	// Connect to default postgres db first to create gamedb if needed
-	defaultDSN := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=postgres port=%s sslmode=disable",
-		host, user, password, port,
-	)
-
-	defaultDB, err := sql.Open("postgres", defaultDSN)
-	if err != nil {
-		log.Fatal("Failed to connect to default database:", err)
-	}
-	defer defaultDB.Close()
-
-	// Create gamedb if it doesn't exist
-	var exists bool
-	err = defaultDB.QueryRow(
-		"SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)", dbname,
-	).Scan(&exists)
-	if err != nil {
-		log.Fatal("Failed to check database existence:", err)
-	}
-
-	if !exists {
-		_, err = defaultDB.Exec(fmt.Sprintf("CREATE DATABASE %s", dbname))
-		if err != nil {
-			log.Fatal("Failed to create database:", err)
-		}
-		log.Printf("Database '%s' created successfully", dbname)
-	}
 }
