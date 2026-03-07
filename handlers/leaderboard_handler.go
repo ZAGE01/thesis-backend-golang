@@ -15,7 +15,7 @@ func GetLeaderboard(c *gin.Context) {
         JOIN users u ON s.user_id = u.id
         GROUP BY u.username
         ORDER BY top_score DESC
-        LIMIT 10
+        LIMIT 100
     `)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch leaderboard"})

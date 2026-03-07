@@ -9,7 +9,7 @@ A REST API backend built with **Go (Gin)** and **PostgreSQL** for an Unreal Engi
 - **Language:** Go
 - **Framework:** Gin
 - **Database:** PostgreSQL database provided by Supabase
-- **Deployment:** Deployed to Render
+- **Deployment:** Deployed to Render at: https://thesis-backend-golang.onrender.com/
 - **Auth:** JWT
 - **Password Hashing:** bcrypt
 
@@ -42,7 +42,6 @@ thesis-backend-golang/
 
 ### 1. Prerequisites
 - Go 1.25.0
-- PostgreSQL
 
 ### 2. Configure environment
 
@@ -70,11 +69,11 @@ go run .
 
 ### Public Routes
 
-| Method | Endpoint    | Description                        |
-|--------|-------------|------------------------------------|
-| POST   | `/register` | Create a new account               |
-| POST   | `/login`    | Login and get JWT token            |
-| GET    | `/leaderboard`  | Get top 10 leaderboard         |
+| Method | Endpoint        | Description                    |
+|--------|-----------------|--------------------------------|
+| POST   | `/register`     | Create a new account           |
+| POST   | `/login`        | Login and get JWT token        |
+| GET    | `/leaderboard`  | Get top 100 leaderboard        |
 | GET    | `/player/:id`   | Get a player's profile & stats |
 
 ### Protected Routes (require `Authorization: Bearer <token>` header)
@@ -90,7 +89,7 @@ go run .
 ### Register a new account
 
 ```bash
-curl -X POST http://localhost:8080/register \
+curl -X POST https://thesis-backend-golang.onrender.com/register \
   -H "Content-Type: application/json" \
   -d "{\"username\": \"test\", \"password\": \"testpwd\"}"
 ```
@@ -108,7 +107,7 @@ curl -X POST http://localhost:8080/register \
 ### Login
 
 ```bash
-curl -X POST http://localhost:8080/login \
+curl -X POST https://thesis-backend-golang.onrender.com/login \
   -H "Content-Type: application/json" \
   -d "{\"username\": \"test\", \"password\": \"testpwd\"}"
 ```
@@ -129,7 +128,7 @@ curl -X POST http://localhost:8080/login \
 ### Submit a Score
 
 ```bash
-curl -X POST http://localhost:8080/score \
+curl -X POST https://thesis-backend-golang.onrender.com/score \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d "{\"value\": 4500}"
@@ -148,7 +147,7 @@ curl -X POST http://localhost:8080/score \
 ### Get Leaderboard
 
 ```bash
-curl -X GET http://localhost:8080/leaderboard
+curl -X GET https://thesis-backend-golang.onrender.com/leaderboard
 ```
 
 **Response:**
@@ -168,7 +167,7 @@ curl -X GET http://localhost:8080/leaderboard
 ### Get Player Profile
 
 ```bash
-curl -X GET http://localhost:8080/player/1
+curl -X GET https://thesis-backend-golang.onrender.com/player/1
 ```
 
 **Response:**
