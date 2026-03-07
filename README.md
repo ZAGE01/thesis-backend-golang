@@ -8,7 +8,8 @@ A REST API backend built with **Go (Gin)** and **PostgreSQL** for an Unreal Engi
 
 - **Language:** Go
 - **Framework:** Gin
-- **Database:** PostgreSQL
+- **Database:** PostgreSQL database provided by Supabase
+- **Deployment:** Deployed to Render
 - **Auth:** JWT
 - **Password Hashing:** bcrypt
 
@@ -37,23 +38,23 @@ thesis-backend-golang/
 
 ---
 
-## Setup
+## Running locally for development
 
 ### 1. Prerequisites
-- Go 1.26.1
+- Go 1.25.0
 - PostgreSQL
 
 ### 2. Configure environment
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory and set variables to match Supabase connection parameters:
 
 ```env
-DB_HOST=localhost
-DB_USER=postgres
-DB_PASSWORD=
-DB_NAME=gamedb
+DB_HOST=?
+DB_USER=?
+DB_PASSWORD=?
+DB_NAME=postgres
 DB_PORT=5432
-JWT_SECRET=
+JWT_SECRET=?
 PORT=8080
 ```
 
@@ -62,8 +63,6 @@ PORT=8080
 ```bash
 go run .
 ```
-
-The server will automatically create the `gamedb` database and required tables on first run.
 
 ---
 
