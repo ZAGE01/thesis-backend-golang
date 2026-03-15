@@ -6,6 +6,7 @@ type User struct {
 	ID        uint      `json:"id"`
 	Username  string    `json:"username"`
 	Password  string    `json:"-"`
+	IsAdmin   bool      `json:"is_admin"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -23,4 +24,5 @@ type LoginResponse struct {
 	Token    string `json:"token"`
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
+	IsAdmin  bool   `json:"is_admin"`
 }

@@ -51,6 +51,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Set user_id in context for handlers to use
 		c.Set("user_id", uint(claims["user_id"].(float64)))
 		c.Set("username", claims["username"].(string))
+		c.Set("is_admin", claims["is_admin"].(bool))
 		c.Next()
 	}
 }
