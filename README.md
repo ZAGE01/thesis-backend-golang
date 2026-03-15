@@ -23,10 +23,12 @@ thesis-backend-golang/
 │   ├── db.go         # Database connection & table creation
 │   └── db.sql        # SQL schema
 ├── handlers/
+│   ├── admin_handler.go       # Endpoints for admins
 │   ├── auth_handler.go        # Register & Login
 │   ├── leaderboard_handler.go # Leaderboard & Player profile
 │   └── score_handler.go       # Score submission
 ├── middleware/
+│   ├── admin_middleware.go    # Admin middleware to restrict access some endpoints
 │   └── auth_middleware.go     # JWT auth middleware
 ├── models/
 │   ├── user.go   # User models & request types
@@ -82,6 +84,13 @@ go run .
 |--------|-----------------|--------------------------------|
 | POST   | `/score`        | Submit a score                 |
 
+### Admin Routes (require `Authorization: Bearer <token>` header and admin role)
+
+| Method | Endpoint           | Description                 |
+|--------|--------------------|-----------------------------|
+| GET    | `/admin/users`     | List all users              |
+| DELETE | `/admin/users/:id` | Delete user by ID           |
+
 ---
 
 ## Example curl Requests
@@ -125,25 +134,6 @@ curl -X POST https://thesis-backend-golang.onrender.com/login \
 
 ---
 
-### Submit a Score
-
-```bash
-curl -X POST https://thesis-backend-golang.onrender.com/score \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -d "{\"value\": 4500}"
-```
-
-**Response:**
-```json
-{
-  "message": "Score submitted successfully",
-  "score_id": 7
-}
-```
-
----
-
 ### Get Leaderboard
 
 ```bash
@@ -181,6 +171,61 @@ curl -X GET https://thesis-backend-golang.onrender.com/player/1
 
 ---
 
+### Submit a Score (Requires token)
+
+```bash
+curl -X POST https://thesis-backend-golang.onrender.com/score \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -d "{\"value\": 4500}"
+```
+
+**Response:**
+```json
+{
+  "message": "Score submitted successfully",
+  "score_id": 7
+}
+```
+
+---
+
+### List All Users (Admin only)
+
+```bash
+curl -X GET https://thesis-backend-golang.onrender.com/admin/users \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+**Response:**
+```json
+{
+  "users": [
+    { "id": 1, "username": "test", "is_admin": true, "created_at": "2026-01-01T00:00:00Z" },
+    { "id": 2, "username": "player2", "is_admin": false, "created_at": "2026-01-02T00:00:00Z" }
+  ],
+  "total": 2
+}
+```
+
+---
+
+### Delete User (Admin only)
+
+```bash
+curl -X DELETE https://thesis-backend-golang.onrender.com/admin/users/2 \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+**Response:**
+```json
+{
+  "message": "User deleted successfully"
+}
+```
+
+---
+
 ## Database Schema
 
 ```sql
@@ -188,6 +233,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    is_admin BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

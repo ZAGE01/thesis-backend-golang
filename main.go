@@ -32,6 +32,14 @@ func main() {
 		protected.POST("/score", handlers.SubmitScore)
 	}
 
+	// Admin routes (require JWT + admin role)
+	admin := r.Group("/admin")
+	admin.Use(middleware.AuthMiddleware(), middleware.AdminMiddleware())
+	{
+		admin.GET("/users", handlers.ListUsers)
+		admin.DELETE("/users/:id", handlers.DeleteUser)
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
