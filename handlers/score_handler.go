@@ -15,6 +15,11 @@ func SubmitScore(c *gin.Context) {
 		return
 	}
 
+	if req.Value < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Score cannot be negative"})
+		return
+	}
+
 	userID := c.MustGet("user_id").(uint)
 
 	var scoreID uint
