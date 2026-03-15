@@ -18,7 +18,7 @@ func GetLeaderboard(c *gin.Context) {
         LIMIT 100
     `)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch leaderboard"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "error": "Failed to fetch leaderboard"})
 		return
 	}
 	defer rows.Close()
@@ -28,7 +28,7 @@ func GetLeaderboard(c *gin.Context) {
 	for rows.Next() {
 		var entry models.LeaderboardEntry
 		if err := rows.Scan(&entry.Username, &entry.Score); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse leaderboard"})
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "error": "Failed to parse leaderboard"})
 			return
 		}
 		entry.Rank = rank
@@ -37,6 +37,7 @@ func GetLeaderboard(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"status":      http.StatusOK,
 		"leaderboard": entries,
 		"total":       len(entries),
 	})
@@ -50,7 +51,7 @@ func GetPlayer(c *gin.Context) {
 		"SELECT username FROM users WHERE id = $1", playerID,
 	).Scan(&username)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Player not found"})
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "error": "Player not found"})
 		return
 	}
 
@@ -62,6 +63,7 @@ func GetPlayer(c *gin.Context) {
 	).Scan(&topScore, &gamesPlayed)
 
 	c.JSON(http.StatusOK, gin.H{
+		"status":       http.StatusOK,
 		"username":     username,
 		"top_score":    topScore,
 		"games_played": gamesPlayed,
