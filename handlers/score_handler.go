@@ -11,12 +11,12 @@ import (
 func SubmitScore(c *gin.Context) {
 	var req models.ScoreRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": err.Error()})
 		return
 	}
 
 	if req.Value < 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Score cannot be negative"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Score cannot be negative"})
 		return
 	}
 
@@ -28,11 +28,12 @@ func SubmitScore(c *gin.Context) {
 		userID, req.Value,
 	).Scan(&scoreID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to submit score"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "error": "Failed to submit score"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
+		"status":   http.StatusCreated,
 		"message":  "Score submitted successfully",
 		"score_id": scoreID,
 	})

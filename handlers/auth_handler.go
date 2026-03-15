@@ -15,13 +15,13 @@ import (
 func Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": err.Error()})
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process password"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "error": "Failed to process password"})
 		return
 	}
 
@@ -31,11 +31,12 @@ func Register(c *gin.Context) {
 		req.Username, string(hashedPassword),
 	).Scan(&userID)
 	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
+		c.JSON(http.StatusConflict, gin.H{"status": http.StatusConflict, "error": "Username already exists"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
+		"status":  http.StatusCreated,
 		"message": "Account created successfully",
 		"user_id": userID,
 	})
@@ -44,7 +45,7 @@ func Register(c *gin.Context) {
 func Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": err.Error()})
 		return
 	}
 
@@ -54,12 +55,12 @@ func Login(c *gin.Context) {
 		req.Username,
 	).Scan(&user.ID, &user.Username, &user.Password, &user.IsAdmin)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "error": "Invalid credentials"})
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "error": "Invalid credentials"})
 		return
 	}
 
@@ -73,14 +74,15 @@ func Login(c *gin.Context) {
 
 	tokenStr, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "error": "Failed to generate token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, models.LoginResponse{
-		Token:    tokenStr,
-		UserID:   user.ID,
-		Username: user.Username,
-		IsAdmin:  user.IsAdmin,
+	c.JSON(http.StatusOK, gin.H{
+		"status":   http.StatusOK,
+		"token":    tokenStr,
+		"user_id":  user.ID,
+		"username": user.Username,
+		"is_admin": user.IsAdmin,
 	})
 }
