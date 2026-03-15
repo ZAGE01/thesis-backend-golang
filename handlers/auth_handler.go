@@ -50,9 +50,9 @@ func Login(c *gin.Context) {
 
 	var user models.User
 	err := database.DB.QueryRow(
-		"SELECT id, username, password FROM users WHERE username = $1",
+		"SELECT id, username, password, is_admin FROM users WHERE username = $1",
 		req.Username,
-	).Scan(&user.ID, &user.Username, &user.Password)
+	).Scan(&user.ID, &user.Username, &user.Password, &user.IsAdmin)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
@@ -67,6 +67,7 @@ func Login(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":  user.ID,
 		"username": user.Username,
+		"is_admin": user.IsAdmin,
 		"exp":      time.Now().Add(72 * time.Hour).Unix(),
 	})
 
@@ -80,5 +81,6 @@ func Login(c *gin.Context) {
 		Token:    tokenStr,
 		UserID:   user.ID,
 		Username: user.Username,
+		IsAdmin:  user.IsAdmin,
 	})
 }
