@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"game-backend/database"
 	"game-backend/models"
 	"net/http"
@@ -8,14 +9,39 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
+func getValidationError(err error) string {
+	var validationErrors validator.ValidationErrors
+	// If the error is not a validation error, return a generic message
+	if !errors.As(err, &validationErrors) {
+		return "Invalid request body"
+	}
+
+	firstError := validationErrors[0]
+	fieldName := firstError.Field()
+
+	messages := map[string]string{
+		"required":    fieldName + " cannot be empty",
+		"min":         fieldName + " must be at least " + firstError.Param() + " characters",
+		"max":         fieldName + " must be less than " + firstError.Param() + " characters",
+		"excludesall": fieldName + " cannot contain spaces",
+	}
+
+	if msg, exists := messages[firstError.Tag()]; exists {
+		return msg
+	}
+
+	return fieldName + " is invalid"
+}
+
 func Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": getValidationError(err)})
 		return
 	}
 
@@ -31,7 +57,7 @@ func Register(c *gin.Context) {
 		req.Username, string(hashedPassword),
 	).Scan(&userID)
 	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"status": http.StatusConflict, "error": "Username already exists"})
+		c.JSON(http.StatusConflict, gin.H{"status": http.StatusConflict, "error": "Username already taken"})
 		return
 	}
 
@@ -45,7 +71,7 @@ func Register(c *gin.Context) {
 func Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": getValidationError(err)})
 		return
 	}
 
