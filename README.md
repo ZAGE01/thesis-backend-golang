@@ -1,7 +1,8 @@
 # Game Backend API
 
-A REST API backend built with **Go (Gin)** and **PostgreSQL** for an Unreal Engine game. It handles player account registration, authentication, score submission, and leaderboard tracking. This project is part of a thesis project.
+A REST API backend built with **Go (Gin)** and **PostgreSQL** for an Unreal Engine game. It handles player account registration, authentication, score submission, and leaderboard tracking. This backend is part of a personal thesis project.
 
+> **Note:** This is a thesis project backend. Public endpoints are intentionally open for demonstration purposes. There is no sensitive user data, passwords are bcrypt hashed and never exposed. Admin endpoints are protected and require a role that cannot be self-assigned.
 ---
 
 ## Tech Stack
@@ -28,7 +29,7 @@ thesis-backend-golang/
 │   ├── leaderboard_handler.go # Leaderboard & Player profile
 │   └── score_handler.go       # Score submission
 ├── middleware/
-│   ├── admin_middleware.go    # Admin middleware to restrict access some endpoints
+│   ├── admin_middleware.go    # Admin middleware to restrict access to some endpoints
 │   └── auth_middleware.go     # JWT auth middleware
 ├── models/
 │   ├── user.go   # User models & request types
@@ -47,7 +48,7 @@ thesis-backend-golang/
 
 ### 2. Configure environment
 
-Create a `.env` file in the root directory and set variables to match Supabase connection parameters:
+Create a `.env` file in the root directory and set variables to match Supabase connection parameters. Example:
 
 ```env
 DB_HOST=?
@@ -55,6 +56,7 @@ DB_USER=?
 DB_PASSWORD=?
 DB_NAME=postgres
 DB_PORT=5432
+DB_SSLMODE=require
 JWT_SECRET=?
 PORT=8080
 ```
@@ -85,6 +87,7 @@ go run .
 | POST   | `/score`        | Submit a score                 |
 
 ### Admin Routes (require `Authorization: Bearer <token>` header and admin role)
+> **Note:** Admin endpoints require an admin role that cannot be self-assigned. Granting admin access requires direct database access and manually updating the user's `is_admin` field.
 
 | Method | Endpoint           | Description                 |
 |--------|--------------------|-----------------------------|
@@ -93,7 +96,7 @@ go run .
 
 ---
 
-## Example curl Requests
+## Example curl requests
 
 ### Register a new account
 
@@ -243,4 +246,31 @@ CREATE TABLE scores (
     value INTEGER NOT NULL,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+```
+
+## Testing
+
+All handlers and middlewares have unit tests to ensure their correct functionality. Tests are using Go's built-in `testing` package, `testify` for assertions and `go-sqlmock` to mock database interactions.
+
+**Run all unit tests with:**
+```bash
+go test ./...
+```
+
+**Run specific unit test files with:**
+```bash
+go test ./handlers/
+go test ./middleware/
+```
+
+**To see each test case separately (verbose output):**
+```bash
+go test ./... -v
+go test ./handlers/ -v
+go test ./middleware/ -v
+```
+
+**To see test coverage:**
+```bash
+go test ./... -cover
 ```
